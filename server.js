@@ -4,28 +4,7 @@ const cookieSession = require('cookie-session');
 const { sequelize, User } = require('./models/sequelize');
 const passport = require('./passport');
 const authRouter = require('./routes/auth');
-const OpenAI = require('openai');
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-
-const openai = new OpenAI(OPENAI_API_KEY);
-
-
-//* stream example
-async function main() {
-  const stream = await openai.chat.completions.create({
-    "model": "gpt-3.5-turbo",
-    "messages": [{"role": "user", "content": "Say this is a test!"}],
-    "temperature": 0.7,
-    "stream": true,
-  });
-  for await (const chunk of stream) {
-    const content = chunk.choices[0]?.delta.content || '';
-    // process.stdout.write(content);
-    console.log(content);
-  }
-
-}
-
+const chatRouter = require('./routes/chat');
 
 const app = express();
 
@@ -49,6 +28,9 @@ app.use(passport.session());
 //auth routes
 app.use('/auth', authRouter);
 
+//chat routes
+app.use('/chat', chatRouter);
+
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send('Something broke!');
@@ -64,7 +46,6 @@ sequelize.sync()
 
     app.listen(port, () => {
       console.log(`Server is running on port ${port}`);
-      main();
     });
   })
   .catch(console.error);
