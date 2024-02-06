@@ -7,7 +7,7 @@ const openai = new OpenAI(OPENAI_API_KEY);
 
 const { socialDirective } = require('.././prompts.js');
 
-//todo: add message history to the chat
+
 router.post('/social', async (req, res) => {
         const userMessage = req.body.userMessage;
         let messages = req.body.messages; // get the messages array from the client
