@@ -10,7 +10,7 @@ passport.use(new GoogleStrategy({
     scope: ['profile', 'email']
 },
 function(accessToken, refreshToken, profile, done) {
-    console.log(profile);
+    // console.log(profile);
     User.findOrCreate({ 
         where: { googleId: profile.id },
         defaults: { name: profile.displayName }

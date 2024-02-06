@@ -7,6 +7,7 @@ const authRouter = require('./routes/auth');
 const chatRouter = require('./routes/chat');
 
 const app = express();
+app.use(express.json());
 
 app.use(
   cors({

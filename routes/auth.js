@@ -22,7 +22,7 @@ router.get("/login/success", (req, res) => {
             user: req.user,
         });
         console.log('auth.js: user has successfully authenticated');
-        console.log(req.user)
+        // console.log(req.user)
     } else {
         res.status(403).json({
             error: true,
