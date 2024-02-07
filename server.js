@@ -13,10 +13,10 @@ console.log('Database Password:', process.env.DATABASE_PASSWORD ? '******' : 'No
 const app = express();
 app.use(express.json());
 
-const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173'; 
+const clientUrl = process.env.CLIENT_URL ||'http://localhost:5173' ; 
 app.use(
   cors({
-      origin: clientUrl, //todo: UPDATE ENV VARIABLE
+      origin: clientUrl, 
       methods: 'GET,HEAD,PUT,POST,DELETE',
       credentials: true
   })
