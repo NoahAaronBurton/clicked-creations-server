@@ -9,9 +9,10 @@ const chatRouter = require('./routes/chat');
 const app = express();
 app.use(express.json());
 
+const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173'; 
 app.use(
   cors({
-      origin: 'http://localhost:5173',
+      origin: clientUrl, //todo: UPDATE ENV VARIABLE
       methods: 'GET,HEAD,PUT,POST,DELETE',
       credentials: true
   })
@@ -19,7 +20,7 @@ app.use(
 
 app.use(cookieSession({
   name: 'google-auth-session',
-  keys:['clicked'],
+  keys:[ process.env.COOKIE_KEY ||'clicked'],
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
 
@@ -34,7 +35,11 @@ app.use('/chat', chatRouter);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).send('Something broke!');
+  if (process.env.NODE_ENV === 'production') {
+    res.status(500).send('An error occurred');
+  } else {
+    res.status(500).send(err.stack);
+  }
 });
 
 // Sync models with database
