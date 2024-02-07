@@ -6,6 +6,10 @@ const passport = require('./passport');
 const authRouter = require('./routes/auth');
 const chatRouter = require('./routes/chat');
 
+console.log('Database Host:', process.env.DATABASE_HOST);
+console.log('Database Username:', process.env.DATABASE_USERNAME);
+console.log('Database Password:', process.env.DATABASE_PASSWORD ? '******' : 'Not Provided');
+
 const app = express();
 app.use(express.json());
 
@@ -46,6 +50,7 @@ app.use((err, req, res, next) => {
 sequelize.sync()
   .then(() => {
     // Start server
+    console.log(process.env.PORT);
     const port = process.env.PORT || 3000;
 
     // ... set up routes
