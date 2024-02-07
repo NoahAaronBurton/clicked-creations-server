@@ -15,20 +15,20 @@ router.get("/google", passport.authenticate("google", { scope: ["profile", "emai
 
 //* endpoints that client can hit to check the authentication status of the user
 router.get("/login/success", (req, res) => {
+    console.log(req.user)
     if (req.user) {
+        const { dataValues: { googleId, ...user } } = req.user;
         res.status(200).json({
             error: false,
             message: 'auth.js: user has successfully authenticated',
-            user: req.user,
+            user: user,
         });
         console.log('auth.js: user has successfully authenticated');
-        // console.log(req.user)
     } else {
         res.status(403).json({
             error: true,
             message: 'auth.js: user not loggin in'
         });
-    
     }
 })
 
