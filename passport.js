@@ -3,10 +3,12 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const passport = require('passport');
 const { User } = require('./models/sequelize');
 
+const callbackUrl = process.env.NODE_ENV === 'production' ? 'https://clicked-creations-server-production.up.railway.app/auth/google/callback' : 'http://localhost:3000/auth/google/callback';
+
 passport.use(new GoogleStrategy({
     clientID: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
-    callbackURL: '/auth/google/callback', //must match authorized redirect URI in google console
+    callbackURL: callbackUrl, //must match authorized redirect URI in google console
     scope: ['profile', 'email']
 },
 function(accessToken, refreshToken, profile, done) {
