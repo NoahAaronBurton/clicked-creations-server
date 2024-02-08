@@ -23,6 +23,7 @@ function(accessToken, refreshToken, profile, done) {
         done(null, user);
     })
     .catch(err => {
+        console.error('Error occurred while finding or creating user:', err);
         done(err, null);
     });
 }));
