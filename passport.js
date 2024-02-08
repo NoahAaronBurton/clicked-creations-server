@@ -30,6 +30,7 @@ function(accessToken, refreshToken, profile, done) {
 
 passport.serializeUser((user, done) => {
     if (!user) {
+        console.error('Error occurred while serializing user:', err);
         return done(new Error('No user to serialize'), null);
     }
     done(null, user.id);
@@ -44,6 +45,7 @@ passport.deserializeUser((id, done) => {
         done(null, user);
     })
     .catch(err => {
+        console.error('Error occurred while deserializing user:', err);
         done(err, null);
     });
 });
