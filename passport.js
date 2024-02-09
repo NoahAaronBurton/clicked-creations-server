@@ -12,9 +12,11 @@ passport.use(new GoogleStrategy({
     scope: ['profile', 'email']
 },
 function(accessToken, refreshToken, profile, done) {
+    // console.log('profile:', profile);
+    const email = profile.emails[0].value;
     User.findOrCreate({ 
-        where: { googleId: profile.id },
-        defaults: { name: profile.displayName }
+        where: { email },
+        defaults: { googleId: profile.id, name: profile.displayName }
     })
     .then(([user, created]) => {
         if (!user) {
