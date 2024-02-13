@@ -45,13 +45,16 @@ app.use((err, req, res, next) => {
 });
 
 // Sync models with database
-sequelize.sync()
+let syncOptions = {};
+if (process.env.NODE_ENV === 'development' || 'test') {
+  syncOptions = { alter: true , force: true };
+}
+sequelize.sync(syncOptions)
   .then(() => {
+    console.log('Database & tables created!')
     // Start server
     console.log(process.env.PORT);
     const port = process.env.PORT || 3000;
-
-    // ... set up routes
 
     app.listen(port, () => {
       console.log(`Server is running on port ${port}`);
