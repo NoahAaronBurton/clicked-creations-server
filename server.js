@@ -49,9 +49,10 @@ app.use((err, req, res, next) => {
 });
 
 // Sync models with database
-let syncOptions = {};
-if (process.env.NODE_ENV === 'development' || 'test') {
-  syncOptions = { alter: true , force: true };
+// Sync models with database
+let syncOptions = { alter: true , force: false };
+if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+  syncOptions = { alter: true , force: false };
 }
 sequelize.sync(syncOptions)
   .then(() => {

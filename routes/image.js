@@ -18,7 +18,8 @@ router.post('/generate', async (req, res) => {
         prompt: prompt,
         quality: quality,
         size: size,
-        style: style
+        style: style,
+        response_format: "b64_json"
     });
 
     return res.json(image);
