@@ -4,6 +4,7 @@ require('dotenv').config();
 const OpenAI = require('openai');
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const openai = new OpenAI(OPENAI_API_KEY);
+// const org = 'org-1kwrsrf3vxdfPr7d5UttyD5H'; // Skyler's "Noah" organization
 
 // todo: pass in directives to the system to control the AI's behavior
 const { socialDirective, blogDirective } = require('.././prompts.js');

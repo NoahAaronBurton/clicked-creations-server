@@ -5,6 +5,7 @@ const { sequelize, User } = require('./models/sequelize');
 const passport = require('./passport');
 const authRouter = require('./routes/auth');
 const chatRouter = require('./routes/chat');
+const imageRouter = require('./routes/image');
 
 const app = express();
 app.use(express.json());
@@ -35,6 +36,9 @@ app.use('/auth', authRouter);
 //chat routes
 app.use('/chat', chatRouter);
 
+//image routes
+app.use('/image', imageRouter);
+
 app.use((err, req, res, next) => {
   console.error(err.stack);
   if (process.env.NODE_ENV === 'production') {
@@ -45,9 +49,10 @@ app.use((err, req, res, next) => {
 });
 
 // Sync models with database
-let syncOptions = {};
-if (process.env.NODE_ENV === 'development' || 'test') {
-  syncOptions = { alter: true , force: true };
+// Sync models with database
+let syncOptions = { alter: true , force: false };
+if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+  syncOptions = { alter: true , force: false };
 }
 sequelize.sync(syncOptions)
   .then(() => {
