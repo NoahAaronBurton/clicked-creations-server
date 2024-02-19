@@ -17,18 +17,25 @@ router.get("/google", passport.authenticate("google", { scope: ["profile", "emai
 
 // auth/login/password
 router.post('/login/password', (req, res, next) => {
-    passport.authenticate('local', (err, user, info) => {
+    // Validate input
+    if (!req.body.email || !req.body.password) {
+        return res.status(400).json({
+            error: true,
+            message: 'Email and password are required.'
+        });
+    }
 
-        // console.log('auth.js: login/password route hit');
-        // console.log(req.body);
-        // console.log(user.dataValues);
+    passport.authenticate('local', (err, user, info) => {
+        // Handle authentication errors
         if (err) {
+            console.error(err);
             return res.status(500).json({
                 error: true,
                 message: 'An error occurred during authentication.'
             });
         }
 
+        // Handle invalid user
         if (!user) {
             return res.status(401).json({
                 error: true,
@@ -37,20 +44,22 @@ router.post('/login/password', (req, res, next) => {
         }
 
         req.logIn(user, (err) => {
+            // Handle login errors
             if (err) {
+                console.error(err);
                 return res.status(500).json({
                     error: true,
                     message: 'An error occurred during login.'
                 });
             }
 
+            // Successful login
             return res.json({
                 error: false,
                 message: 'User has successfully logged in.',
                 user: user
             });
         });
-        
     })(req, res, next);
 });
 
