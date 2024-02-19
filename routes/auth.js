@@ -67,6 +67,12 @@ router.post('/login/password', (req, res, next) => {
 router.post("/signup", async (req, res) => {
     // console.log('auth.js: signup route hit');
     // console.log(req.body);
+    if (!req.body.email || !req.body.password) {
+        return res.status(400).json({
+            error: true,
+            message: 'Email and password are required.'
+        });
+    }
 
     try {
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -81,7 +87,7 @@ router.post("/signup", async (req, res) => {
         console.log(error);
         res.status(500).json({
             error: true,
-            message: 'auth.js: error creating user'
+            message: 'Error creating user. Please try again or use different credentials.'
         });
     }
 });
