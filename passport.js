@@ -9,7 +9,8 @@ passport.use(new GoogleStrategy({
     clientSecret: process.env.CLIENT_SECRET,
     callbackURL: '/auth/google/callback',
     scope: ['profile', 'email'],
-    proxy: process.env.NODE_ENV === 'production'
+    proxy: process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging',
+    passReqToCallback: true
 },
 function(accessToken, refreshToken, profile, done) {
     // console.log('profile:', profile);
