@@ -10,7 +10,8 @@ passport.use(new GoogleStrategy({
     callbackURL: process.env.NODE_ENV === 'production' ?
       'https://clicked-creations-server-production.up.railway.app/auth/google/callback' :
       '/auth/google/callback',
-    scope: ['profile', 'email']
+    scope: ['profile', 'email'],
+    proxy: process.env.NODE_ENV === 'production'
 },
 function(accessToken, refreshToken, profile, done) {
     // console.log('profile:', profile);
