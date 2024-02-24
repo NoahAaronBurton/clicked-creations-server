@@ -7,7 +7,7 @@ const bcrypt = require('bcrypt');
 router.get(
     "/google/callback",
     passport.authenticate("google", {
-        successRedirect: `${process.env.CLIENT_URL}`, 
+        successRedirect: `${process.env.CLIENT_URL}/home`, 
         failureRedirect: "/login/failed"
     } 
     ),    
