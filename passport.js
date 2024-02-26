@@ -7,7 +7,7 @@ const { User } = require('./models/sequelize');
 passport.use(new GoogleStrategy({
     clientID: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
-    callbackURL: '/auth/google/callback',
+    callbackURL: 'https://clicked-creations-server-staging.up.railway.app/auth/google/callback',
     scope: ['profile', 'email'],
     proxy: process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging',
     passReqToCallback: true
