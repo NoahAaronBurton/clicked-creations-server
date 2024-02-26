@@ -13,7 +13,10 @@ passport.use(new GoogleStrategy({
     passReqToCallback: true
 },
 function(accessToken, refreshToken, profile, done) {
-    // console.log('profile:', profile);
+    if (!profile.emails || !profile.emails.length) {
+        return done(new Error('No email found in user profile'), null);
+    }
+    console.log('profile:', profile);
     const email = profile.emails[0].value;
     User.findOrCreate({ 
         where: { email },
