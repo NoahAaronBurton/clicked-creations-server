@@ -10,14 +10,15 @@ const imageRouter = require('./routes/image');
 const app = express();
 app.use(express.json());
 
-const clientUrl = process.env.CLIENT_URL ||'http://localhost:5173' ; 
+console.log('server CLIENT_URL: '+ process.env.CLIENT_URL);
 app.use(
   cors({
-      origin: clientUrl, 
+      origin: process.env.CLIENT_URL, // make sure this is set to 'http://localhost:5173'
       methods: 'GET,HEAD,PUT,POST,DELETE',
       credentials: true
   })
-)
+);
+// app.use(cors());
 
 app.use(cookieSession({
   name: 'google-auth-session',
@@ -29,6 +30,11 @@ app.use(cookieSession({
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.use((req, res, next) => {
+  console.log(res.get('Access-Control-Allow-Origin'));
+  next();
+});
 
 //auth routes
 app.use('/auth', authRouter);
@@ -59,10 +65,11 @@ sequelize.sync(syncOptions)
     console.log('Database & tables created!')
     // Start server
     console.log(process.env.PORT);
-    const port = process.env.PORT || 3000;
+    const port = process.env.PORT;
 
-    app.listen(port, () => {
-      console.log(`Server is running on port ${port}`);
+    const server = app.listen(port, () => {
+      const address = server.address();
+      console.log(`Server is running at http://${address.address}:${address.port}`);
     });
   })
   .catch(console.error);
