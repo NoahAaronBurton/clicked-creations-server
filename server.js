@@ -6,6 +6,7 @@ const passport = require('./passport');
 const authRouter = require('./routes/auth');
 const chatRouter = require('./routes/chat');
 const imageRouter = require('./routes/image');
+const multer = require('multer');
 
 const app = express();
 app.use(express.json());
@@ -13,7 +14,7 @@ app.use(express.json());
 console.log('server CLIENT_URL: '+ process.env.CLIENT_URL);
 app.use(
   cors({
-      origin: process.env.CLIENT_URL, // make sure this is set to 'http://localhost:5173'
+      origin: process.env.CLIENT_URL,
       methods: 'GET,HEAD,PUT,POST,DELETE',
       credentials: true
   })
@@ -54,12 +55,10 @@ app.use((err, req, res, next) => {
   }
 });
 
-// Sync models with database
-// Sync models with database
-let syncOptions = { alter: true , force: false };
-if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
-  syncOptions = { alter: true , force: false };
-}
+
+//* alter: true will update the table if it exists, 
+//* force: true will drop the table if it exists
+let syncOptions = { alter: false , force: false }; 
 sequelize.sync(syncOptions)
   .then(() => {
     console.log('Database & tables created!')

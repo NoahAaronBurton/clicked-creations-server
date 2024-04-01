@@ -11,7 +11,7 @@ const sequelize = new Sequelize(dbName, process.env.DATABASE_USERNAME, process.e
     dialect: 'mysql',
     port: sqlPort
 });
-//todo: add password to user model
+
 const User = sequelize.define('user', {
     id: {
         type: Sequelize.UUID,
@@ -44,4 +44,5 @@ User.prototype.validPassword = function(password) {
     return bcrypt.compareSync(password, this.password);
 };
 
-module.exports = { sequelize, User };
+
+module.exports = { sequelize, User};
