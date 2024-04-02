@@ -12,7 +12,7 @@ const fs = require('fs');
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() }); // this option should be fine
 const { Storage } = require('@google-cloud/storage');
-
+const bucketName = process.env.GOOGLE_IMG_UPLOAD_BUCKET_NAME;
 const credentials = JSON.parse(Buffer.from(process.env.GOOGLE_IMG_UPLOAD_BASE64, 'base64').toString());
 
 const storage = new Storage({
@@ -52,7 +52,7 @@ router.post('/generate', async (req, res) => {
 // route for capturing upload for image alteration
 router.post('/upload',upload.single('file'), async (req, res) => {
     try {
-        const bucketName = process.env.GOOGLE_IMG_UPLOAD_BUCKET_NAME;
+        
         const originalFileType = path.extname(req.file.originalname);
         const filename = `${generateUniqueFilename()}_file${originalFileType}`;
 
@@ -117,5 +117,94 @@ router.post('/upload',upload.single('file'), async (req, res) => {
     }
 });
 
+// transform image
+router.post('/transform', async (req, res) => {
+    try {
+        const uid = req.body.uid;
+        const job = req.body.job;
+        const api_token = process.env.VANCE_API_KEY;
+
+        const jconfig = function(job) {
+            if (job === 'Remove Background') {
+                return `{
+                    "name": "matting",
+                    "config": {
+                        "module": "matting",
+                        "module_params": {
+                            "model_name": "MattingStable"
+                        }
+                    }
+                }`;
+            }
+        }
+
+        const formData = new FormData();
+        formData.append('uid', uid);
+        formData.append('api_token', api_token);
+        formData.append('jconfig', jconfig(job));
+
+        const response = await axios.post('https://api-service.vanceai.com/web_api/v1/transform', formData, {
+            headers: formData.getHeaders(),
+        });
+
+        if (response.status === 200) {
+            const trans_id = response.data.data.trans_id;
+
+            
+
+            const downloadData = new FormData();
+            downloadData.append('trans_id', trans_id);
+            downloadData.append('api_token', api_token);
+
+            const downloadResponse = await axios.post('https://api-service.vanceai.com/web_api/v1/download', downloadData, {
+            headers: downloadData.getHeaders(),
+            responseType: 'arraybuffer', // Set responseType to 'arraybuffer' to receive binary data
+        });
+
+        // Generate a unique filename for the transformed image
+        const transformedImageFilename = `${generateUniqueFilename()}_transformed.jpg`; // Replace '.jpg' with the actual file extension of your image
+
+        // Create a write stream for the transformed image in Google Cloud Storage
+        const transformedImageFile = storage.bucket(bucketName).file(transformedImageFilename);
+        const transformedImageFileWriteStream = transformedImageFile.createWriteStream();
+
+        // Create a read stream from the transformed image data and pipe it to the write stream
+        const transformedImageReadStream = new Readable();
+        transformedImageReadStream.push(downloadResponse.data);
+        transformedImageReadStream.push(null);
+        transformedImageReadStream.pipe(transformedImageFileWriteStream);
+
+        transformedImageFileWriteStream.on('error', (err) => {
+            console.error(err);
+            res.status(500).json({ message: err.message });
+        });
+
+
+        transformedImageFileWriteStream.on('finish', async () => {
+            try {
+                // The transformed image has been uploaded to Google Cloud Storage.
+                // Read the file from Google Cloud Storage
+                const [fileContents] = await transformedImageFile.download();
+    
+                // Convert the file contents to a Base64 string
+                const base64Image = fileContents.toString('base64');
+    
+                res.status(200).json({ message: 'Image transformed successfully.', base64Image: base64Image });
+            } catch (err) {
+                console.error(err);
+                res.status(500).json({ message: err.message });
+            }
+        });
+        
+        } else {
+            throw new Error('Failed to transform image. Please Try again. Its also possible this job is not compatible with the image.');
+        }
+
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: err.message });
+    }
+});
 
 module.exports = router; 
