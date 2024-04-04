@@ -120,11 +120,11 @@ router.post('/upload',upload.single('file'), async (req, res) => {
 // transform image
 router.post('/transform', async (req, res) => {
     try {
+        console.log(req.body); // good
         const uid = req.body.uid;
         const job = req.body.job;
         const api_token = process.env.VANCE_API_KEY;
-
-        const jconfig = function(job) {
+        const jconfig = function(job, options) {
             if (job === 'Remove Background') {
                 return `{
                     "name": "matting",
@@ -135,34 +135,46 @@ router.post('/transform', async (req, res) => {
                         }
                     }
                 }`;
+            } else if (job === 'Enlarge') {
+                const suppressNoise = Number(options.suppressNoise);
+                const removeBlur = Number(options.removeBlur);
+                const scale = Number(options.scale);
+        
+                return JSON.stringify({
+                    "name": "enlarge3",
+                    "config": {
+                      "module": "enlarge3",
+                      "module_params": {
+                        "model_name": "EnlargeStandard_4x_Stable",
+                        "suppress_noise": suppressNoise,
+                        "remove_blur": removeBlur,
+                        "scale": scale
+                      }
+                    }
+                  });
             }
         }
+
+        const options = req.body.options;
+        console.log(jconfig(job, options)) // good
 
         const formData = new FormData();
         formData.append('uid', uid);
         formData.append('api_token', api_token);
-        formData.append('jconfig', jconfig(job));
+        formData.append('jconfig', jconfig(job, options));
 
-        const response = await axios.post('https://api-service.vanceai.com/web_api/v1/transform', formData, {
-            headers: formData.getHeaders(),
-        });
-
-        if (response.status === 200) {
-            const trans_id = response.data.data.trans_id;
-
-            
-
+        const handleFinishStatus = async (trans_id) => {
             const downloadData = new FormData();
             downloadData.append('trans_id', trans_id);
             downloadData.append('api_token', api_token);
-
+        
             const downloadResponse = await axios.post('https://api-service.vanceai.com/web_api/v1/download', downloadData, {
-            headers: downloadData.getHeaders(),
-            responseType: 'arraybuffer', // Set responseType to 'arraybuffer' to receive binary data
-        });
+                headers: downloadData.getHeaders(),
+                responseType: 'arraybuffer', // Set responseType to 'arraybuffer' to receive binary data
+                });
 
-        // Generate a unique filename for the transformed image
-        const transformedImageFilename = `${generateUniqueFilename()}_transformed.jpg`; // Replace '.jpg' with the actual file extension of your image
+            // Generate a unique filename for the transformed image
+        const transformedImageFilename = `${generateUniqueFilename()}_transformed.jpg`; 
 
         // Create a write stream for the transformed image in Google Cloud Storage
         const transformedImageFile = storage.bucket(bucketName).file(transformedImageFilename);
@@ -194,17 +206,42 @@ router.post('/transform', async (req, res) => {
                 console.error(err);
                 res.status(500).json({ message: err.message });
             }
-        });
-        
-        } else {
-            throw new Error('Failed to transform image. Please Try again. Its also possible this job is not compatible with the image.');
-        }
+        });    
+        };
 
 
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: err.message });
+        const response = await axios.post('https://api-service.vanceai.com/web_api/v1/transform', formData, {
+      headers: formData.getHeaders(),
+    });
+
+    const trans_id = response.data.data.trans_id;
+
+    if (response.data.data.status !== 'finish') {
+        const intervalId = setInterval(async () => {
+            const progressData = new FormData();
+            progressData.append('trans_id', trans_id);
+            progressData.append('api_token', api_token);
+
+            const progressResponse = await axios.post('https://api-service.vanceai.com/web_api/v1/progress', progressData, {
+                headers: progressData.getHeaders(),
+            });
+
+            console.log('Checking for finish status...'); // Log a message every time the route checks for a finish status
+            console.log('Progress check response:', progressResponse.data);
+
+            if (progressResponse.data.data.status === 'finish') {
+                console.log(progressResponse.data);
+                clearInterval(intervalId);
+                await handleFinishStatus(trans_id);
+            }
+        }, 5000);
+    } else {
+        await handleFinishStatus(trans_id);
     }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
 });
 
 module.exports = router; 
