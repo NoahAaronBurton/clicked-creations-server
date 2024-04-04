@@ -223,6 +223,18 @@ router.post('/transform', async (req, res) => {
                         }
                     }
                 })
+            } else if (job === 'Anime Portrait') {
+                return `
+                {
+                    "job": "animegan",
+                    "config": {
+                        "module": "animegan2",
+                        "module_params": {
+                            "model_name": "Animegan2Stable",
+                            "single_face": true
+                        }
+                    }
+                }`
             }
         }
 
