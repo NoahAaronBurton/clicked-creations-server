@@ -193,6 +193,21 @@ router.post('/transform', async (req, res) => {
                         }
                     }
                 }`
+            } else if (job === 'Deblur') {
+                const faceDetection = Number(options.faceDetection) === 1 ? true : false;
+                return JSON.stringify({
+                    
+                        "name": "img2sr",
+                        "config": {
+                            "module": "img2sr",
+                            "module_params": {
+                                "model_name": "style_sr_512",
+                                "face_enhancer": faceDetection,
+                                "strength": 0.9
+                            }
+                        }
+                    
+                })
             }
         }
 
