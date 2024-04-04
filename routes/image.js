@@ -152,6 +152,20 @@ router.post('/transform', async (req, res) => {
                       }
                     }
                   });
+            } else if (job === 'Denoiser') {
+                return `
+                {
+                    "name": "denoise",
+                    "config": {
+                        "module": "denoise",
+                        "module_params": {
+                            "model_name": "DenoiseStable",
+                            "auto_params": true,
+                            "remove_noise": 75,
+                            "sharpen" : 75
+                        }
+                    }
+                }`
             }
         }
 
