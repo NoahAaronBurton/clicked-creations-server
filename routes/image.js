@@ -166,6 +166,22 @@ router.post('/transform', async (req, res) => {
                         }
                     }
                 }`
+            } else if (job === 'Sharpen') {
+                return `
+                {
+                    "name":"va_sharpen_standard",
+                    "config":{
+                        "module":"sharpen3",
+                        "module_params":{
+                            "model_name":"SharpenGeneralStable",
+                            "remove_blur":0.5,
+                            "suppress_noise":0.5,
+                            "remove_artifacts":0.5,
+                            "autoparams":true,
+                            "automodel":true
+                        }
+                    }
+                }`
             }
         }
 
