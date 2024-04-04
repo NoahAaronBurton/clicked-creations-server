@@ -182,6 +182,17 @@ router.post('/transform', async (req, res) => {
                         }
                     }
                 }`
+            } else if (job ==='Restore') {
+                return `
+                {
+                    "name": "crease_repair",
+                    "config": {
+                        "module": "crease_repair",
+                        "module_params": {
+                            "model_name": "CreaseRepairStable"
+                        }
+                    }
+                }`
             }
         }
 
