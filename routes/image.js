@@ -208,6 +208,21 @@ router.post('/transform', async (req, res) => {
                         }
                     
                 })
+            } else if (job === 'Cartoonify') {
+                const cartoonifyStyle = Number(options.cartoonifyStyle);
+
+                return JSON.stringify({
+                    "name":"img2anime",
+                    "config":{
+                        "module":"img2anime",
+                        "module_params":{
+                            "model_name":"style" + cartoonifyStyle,
+                            "description":"",
+                            "control_mode": 0,
+                            "style_strength": 11
+                        }
+                    }
+                })
             }
         }
 
