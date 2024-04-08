@@ -235,6 +235,20 @@ router.post('/transform', async (req, res) => {
                         }
                     }
                 }`
+            } else if (job === 'Recolor') {
+                const prompt = options.recolorPrompt;
+                const negativePrompt = options.recolorNegativePrompt;
+                return JSON.stringify({
+                        "name": "recolor",
+                        "config": {
+                            "module": "sd_recolor",
+                            "module_params": {
+                                "model_name": "sd_recolor",
+                                "prompt": prompt,
+                                "negative_prompt": negativePrompt
+                            }
+                        }
+                })
             }
         }
 
@@ -311,6 +325,13 @@ router.post('/transform', async (req, res) => {
 
             console.log('Checking for finish status...'); // Log a message every time the route checks for a finish status
             console.log('Progress check response:', progressResponse.data);
+            
+            if (progressResponse.data.data.status === 'fatal') {
+                console.error('The transformation failed. Re-phrase your prompt and try again.');
+                clearInterval(intervalId);
+                res.status(500).json({ message: 'The transformation failed. Re-phrase your prompt and try again.' });
+                return;
+            }
 
             if (progressResponse.data.data.status === 'finish') {
                 console.log(progressResponse.data);
