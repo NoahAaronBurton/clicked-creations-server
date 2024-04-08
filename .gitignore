@@ -137,3 +137,4 @@ prodoauth.json
 img-upload-service-worker.json
 output.txt
 uploads/
+.env.staging

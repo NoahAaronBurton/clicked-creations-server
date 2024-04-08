@@ -81,7 +81,7 @@ router.post('/upload',upload.single('file'), async (req, res) => {
                     expires: Date.now() + 15 * 60 * 1000, // 15 minutes
                 };
                 const [url] = await file.getSignedUrl(options);
-                console.log(`The signed url for ${filename} is ${url}.`);
+                // console.log(`The signed url for ${filename} is ${url}.`);
 
                 // Create a form data object
                 const formData = new FormData();
@@ -120,7 +120,7 @@ router.post('/upload',upload.single('file'), async (req, res) => {
 // transform image
 router.post('/transform', async (req, res) => {
     try {
-        console.log(req.body); // good
+        
         const uid = req.body.uid;
         const job = req.body.job;
         const api_token = process.env.VANCE_API_KEY;
@@ -253,7 +253,7 @@ router.post('/transform', async (req, res) => {
         }
 
         const options = req.body.options;
-        console.log(jconfig(job, options)) // good
+        
 
         const formData = new FormData();
         formData.append('uid', uid);
@@ -323,8 +323,7 @@ router.post('/transform', async (req, res) => {
                 headers: progressData.getHeaders(),
             });
 
-            console.log('Checking for finish status...'); // Log a message every time the route checks for a finish status
-            console.log('Progress check response:', progressResponse.data);
+           
             
             if (progressResponse.data.data.status === 'fatal') {
                 console.error('The transformation failed. Re-phrase your prompt and try again.');
@@ -334,7 +333,7 @@ router.post('/transform', async (req, res) => {
             }
 
             if (progressResponse.data.data.status === 'finish') {
-                console.log(progressResponse.data);
+                // console.log(progressResponse.data);
                 clearInterval(intervalId);
                 await handleFinishStatus(trans_id);
             }

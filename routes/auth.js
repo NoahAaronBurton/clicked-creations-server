@@ -94,7 +94,7 @@ router.post("/signup", async (req, res) => {
 
 //* endpoints that client can hit to check the authentication status of the user
 router.get("/login/success", (req, res) => {
-    console.log(req.user)
+    // console.log(req.user)
     if (req.user) {
         const { dataValues: { email, ...user } } = req.user; //? email
         res.status(200).json({

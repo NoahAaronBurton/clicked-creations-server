@@ -11,7 +11,9 @@ const multer = require('multer');
 const app = express();
 app.use(express.json());
 
-console.log('server CLIENT_URL: '+ process.env.CLIENT_URL);
+require('dotenv').config({ path: process.env.NODE_ENV === 'staging' ? '.env.staging' : '.env' });
+
+// console.log('server CLIENT_URL: '+ process.env.CLIENT_URL);
 app.use(
   cors({
       origin: process.env.CLIENT_URL,
@@ -33,7 +35,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use((req, res, next) => {
-  console.log(res.get('Access-Control-Allow-Origin'));
+  // console.log(res.get('Access-Control-Allow-Origin'));
   next();
 });
 
@@ -61,14 +63,14 @@ app.use((err, req, res, next) => {
 let syncOptions = { alter: false , force: false }; 
 sequelize.sync(syncOptions)
   .then(() => {
-    console.log('Database & tables created!')
+    // console.log('Database & tables created!')
     // Start server
-    console.log(process.env.PORT);
+    // console.log(process.env.PORT);
     const port = process.env.PORT;
 
     const server = app.listen(port, () => {
       const address = server.address();
-      console.log(`Server is running at http://${address.address}:${address.port}`);
+      // console.log(`Server is running at http://${address.address}:${address.port}`);
     });
   })
   .catch(console.error);
