@@ -32,13 +32,13 @@ app.use(
 // }));
 
 app.use(session({
-  secret: 'mysecret',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
     maxAge: 24 * 60 * 60 * 1000, // 1 day
-    secure: false, // set to false for local development
-    sameSite: 'Lax' // set to 'none' for cross-origin requests
+    secure: false, 
+    sameSite: 'Lax' 
   }
 }));
 //! Typically, you would use passport.authenticate('strategy') in specific routes where you want to apply authentication, not as a global middleware. If you're trying to ensure that every route requires authentication, it might be better to create a custom middleware function for that.
