@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const cookieSession = require('cookie-session');
+const session = require('express-session');
 const { sequelize, User } = require('./models/sequelize');
 const passport = require('./passport');
 const authRouter = require('./routes/auth');
@@ -23,13 +23,26 @@ app.use(
 );
 // app.use(cors());
 
-app.use(cookieSession({
-  name: 'google-auth-session',
-  keys: [process.env.COOKIE_KEY],
-  maxAge: 24 * 60 * 60 * 1000,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+// app.use(cookieSession({
+//   name: 'google-auth-session',
+//   keys: [process.env.COOKIE_KEY],
+//   maxAge: 24 * 60 * 60 * 1000,
+//   secure: process.env.NODE_ENV === 'production',
+//   sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+// }));
+
+app.use(session({
+  secret: 'mysecret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
+    secure: false, // set to false for local development
+    sameSite: 'Lax' // set to 'none' for cross-origin requests
+  }
 }));
+//! Typically, you would use passport.authenticate('strategy') in specific routes where you want to apply authentication, not as a global middleware. If you're trying to ensure that every route requires authentication, it might be better to create a custom middleware function for that.
+// app.use(passport.authenticate('session'));
 
 app.use(passport.initialize());
 app.use(passport.session());

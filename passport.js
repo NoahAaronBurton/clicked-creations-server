@@ -58,15 +58,23 @@ passport.use(new LocalStrategy({
 
 passport.serializeUser((user, done) => {
     if (!user) {
-        console.error('Error occurred while serializing user:', err);
+        console.error('No user to serialize');
         return done(new Error('No user to serialize'), null);
     }
+
     done(null, user.id);
 });
 
 passport.deserializeUser((id, done) => {
     User.findByPk(id)
-        .then(user => done(null, user))
+        .then(user => {
+            if (!user) {
+                console.log('No user found with ID:', id);
+                return done(new Error('No user found'), null);
+            }
+
+            done(null, user);
+        })
         .catch(err => done(err));
 });
 
