@@ -186,10 +186,15 @@ router.get(
 // /auth/logout
 router.get("/logout", (req, res) => {
     req.logout();
-    res.json({
-        error: false,
-        message: 'auth.js: user has successfully logged out'});
-    console.log('auth.js: user has successfully logged out');    
+    req.session.destroy(err => {
+        if (err) {
+            return res.status(500).json({ error: true, message: 'Could not destroy session' });
+        } else {
+            res.clearCookie('connect.sid'); // replace 'connect.sid' with  cookie name if it's different
+            res.json({ error: false, message: 'User has successfully logged out' });
+            console.log('User has successfully logged out');
+        }
+    });
 });
 
 router.get('/auth/failure', (req, res) => {
