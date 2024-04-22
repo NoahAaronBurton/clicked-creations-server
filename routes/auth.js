@@ -12,66 +12,27 @@ function ensureAuthenticated(req, res, next) {
     }
     res.status(401).json({ error: true, message: 'User is not authenticated' });
 }
+// auth/google
+router.get("/google", passport.authenticate("google", { scope: ["profile"] }));
 
 // /auth/google/callback
 router.get(
     "/google/callback",
     passport.authenticate("google", {
-        successRedirect: `${process.env.CLIENT_URL}/home`, 
-        failureRedirect: "/failure"
+        successRedirect: `${process.env.CLIENT_URL}/home`
     } 
-    ),    
+    ),
+    function(req, res) {
+        console.log('\n Session ID:'+ req.sessionID);
+        console.log('\n Session:'+ JSON.stringify(req.session)); // log the session data
+        console.log('\n user:'+ JSON.stringify(req.user)); // log the user data
+        res.status(200).send({ message: 'User logged in', user: req.user, sessionID: req.sessionID });
+    }    
 )
 
-router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
-// auth/login/password
-// router.post('/login/password', (req, res, next) => {
-//     // Validate input
-//     if (!req.body.email || !req.body.password) {
-//         return res.status(400).json({
-//             error: true,
-//             message: 'Email and password are required.'
-//         });
-//     }
 
-//     passport.authenticate('local', (err, user, info) => {
-//         // Handle authentication errors
-//         if (err) {
-//             console.error(err);
-//             return res.status(500).json({
-//                 error: true,
-//                 message: 'An error occurred during authentication.'
-//             });
-//         }
 
-//         // Handle invalid user
-//         if (!user) {
-//             return res.status(401).json({
-//                 error: true,
-//                 message: 'Invalid email or password.'
-//             });
-//         }
-
-//         req.logIn(user, (err) => {
-//             // Handle login errors
-//             if (err) {
-//                 console.error(err);
-//                 return res.status(500).json({
-//                     error: true,
-//                     message: 'An error occurred during login.'
-//                 });
-//             }
-
-//             // Successful login
-//             return res.json({
-//                 error: false,
-//                 message: 'User has successfully logged in.',
-//                 user: user
-//             });
-//         });
-//     })(req, res, next);
-// });
 
 router.post('/login/password', 
   passport.authenticate('local'),
@@ -82,7 +43,7 @@ router.post('/login/password',
     res.status(200).send({ message: 'User logged in', user: req.user, sessionID: req.sessionID });
   });
 
-// /auth/signup
+
 // router.post("/signup", async (req, res) => {
 //     // console.log('auth.js: signup route hit');
 //     // console.log(req.body);
@@ -156,23 +117,32 @@ router.get('/test', ensureAuthenticated, (req, res) => {
 });
 
 //* endpoints that client can hit to check the authentication status of the user
-router.get("/login/success", (req, res) => {
-    // console.log(req.user)
-    if (req.user) {
-        const { dataValues: { email, ...user } } = req.user; //? email
-        res.status(200).json({
-            error: false,
-            message: 'auth.js: user has successfully authenticated',
-            user: user,
-        });
-        console.log('auth.js: user has successfully authenticated');
-    } else {
-        res.status(403).json({
-            error: true,
-            message: 'auth.js: user not loggin in'
-        });
-    }
-})
+// router.get("/login/success", (req, res) => {
+//     // console.log(req.user)
+//     if (req.user) {
+//         const { dataValues: { email, ...user } } = req.user; //? email
+//         res.status(200).json({
+//             error: false,
+//             message: 'auth.js: user has successfully authenticated',
+//             user: user,
+//         });
+//         console.log('auth.js: user has successfully authenticated');
+//     } else {
+//         res.status(403).json({
+//             error: true,
+//             message: 'auth.js: user not loggin in'
+//         });
+//     }
+// })
+
+// auth/google/profile
+router.get('/google/profile', (req, res) => {
+    // Get the profile from the authenticated user
+    const user = req.user;
+    const sessionID = req.sessionID;
+    const session = req.session;
+    res.json({ user, sessionID, session });
+});
 
 router.get(
     "/login/failed", (req, res) => {
